@@ -38,11 +38,12 @@ jobs:
         run: artillery run tests/perf.yml --output report.json
 
       - name: Upload Artillery report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
             name: artillery-report
             path: report.json
+            overwrite: true
 
       - name: Check Prometheus metrics
         run: curl -s http://localhost:3000/metrics | grep fibonacci_requests_total || echo "Metric not found"
