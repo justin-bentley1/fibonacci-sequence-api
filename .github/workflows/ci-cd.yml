@@ -1,0 +1,51 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-perf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Artillery globally
+        run: npm install -g artillery
+
+      - name: Start services with Docker Compose
+        run: docker-compose up -d --build
+
+      - name: Wait for services to be ready
+        run: sleep 5
+
+      - name: Run unit tests
+        run: docker-compose exec -T graphql-api npm test
+
+      - name: Run Artillery performance test
+        run: artillery run tests/perf.yml --output report.json
+
+      - name: Upload Artillery report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+            name: artillery-report
+            path: report.json
+
+      - name: Check Prometheus metrics
+        run: curl -s http://localhost:3000/metrics | grep fibonacci_requests_total || echo "Metric not found"
+
+      - name: Shut down services
+        run: docker-compose down

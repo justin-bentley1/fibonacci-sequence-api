@@ -1,0 +1,20 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 10
+  payload:
+    path: "inputs.csv"
+    fields:
+      - n
+scenarios:
+  - name: "Fibonacci query"
+    flow:
+      - post:
+          url: "/graphql"
+          json:
+            query: "query Fibonacci($n: Int!) { fibonacci(n: $n) }"
+            variables:
+              n: "{{ n }}"
+          expect:
+            - statusCode: 200
