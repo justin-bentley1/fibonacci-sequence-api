@@ -48,8 +48,8 @@ jobs:
             path: report.json
             overwrite: true
 
-      - name: Check Prometheus metrics
-        run: curl -s http://localhost:3000/metrics | grep fibonacci_requests_total || echo "Metric not found"
+      - name: Check Prometheus metrics for Median Fibonacci operation request time
+        run: curl -s http://localhost:3000/metrics | grep 'quantile="0.5",operationName="Fibonacci"' | awk '{print $2}' || echo "Metric not found"
 
       - name: Shut down services
         run: /usr/bin/docker compose down
