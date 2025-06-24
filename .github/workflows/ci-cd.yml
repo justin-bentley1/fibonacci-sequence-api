@@ -24,6 +24,9 @@ jobs:
 
       - name: Install Artillery globally
         run: npm install -g artillery
+    
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v1
 
       - name: Start services with Docker Compose
         run: docker-compose up -d --build
